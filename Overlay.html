@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>CTL Scoreboard</title>
+<style>
+body{
+    margin:0;
+    background:transparent;
+    font-family:Arial, sans-serif;
+    overflow:hidden;
+}
+
+.canvas{
+    position:relative;
+    width:100%;
+    height:100vh;
+}
+
+.bar{
+    position:absolute;
+    left:0;
+    right:0;
+    bottom:20px;
+    width:100%;
+    height:80px;
+
+    display:grid;
+    grid-template-columns:
+        15fr 12fr 28fr 10fr 18fr 7fr;
+}
+.team{background:#1f2937;color:#fff;display:flex;align-items:center;justify-content:center;padding:0 12px;white-space:nowrap;overflow:hidden}
+.score{background:#f59e0b;color:#fff;text-align:center;padding-top:8px}
+.bats{background:#2d3748;color:#fff;padding:10px}
+.target{background:#f97316;color:#fff;text-align:center;padding-top:8px}
+.bowler{background:#2563eb;color:#fff;padding:10px}
+.small{font-size:12px}
+</style></head><body>
+<div class="canvas"><div class="bar">
+<div class="team" id="t1"></div>
+<div class="score"><div style="font-size:30px;font-weight:bold" id="scr"></div><div class="small" id="rr"></div></div>
+<div class="bats" id="bat"></div>
+<div class="target"><div>TARGET</div><div style="font-size:28px;font-weight:bold" id="tar"></div></div>
+<div class="bowler" id="bowl"></div>
+<div class="team" id="t2"></div>
+</div></div>
+<script>
+function load(){
+ let d=JSON.parse(localStorage.getItem('cricketData')||'{}');
+ let score=+(d.score||0), wk=+(d.wickets||0), balls=+(d.balls||0);
+ let target=+(d.target||0), total=+(d.matchBalls||0);
+ let need=Math.max(0,target-score), rem=Math.max(0,total-balls);
+ let crr=balls?((score/balls)*6).toFixed(2):'0.00';
+ let rrr=rem?((need/rem)*6).toFixed(2):'0.00';
+ t1.textContent=d.team1||''; t2.textContent=d.team2||'';
+ scr.textContent=score+'-'+wk;
+ rr.textContent='CRR '+crr+' | RRR '+rrr;
+ bat.innerHTML='★'+(d.striker||'')+' '+(d.strikerRuns||0)+'('+(d.strikerBalls||0)+') </br></br>  '+(d.nonstriker||'')+' '+(d.nonstrikerRuns||0)+'('+(d.nonstrikerBalls||0)+')';
+ tar.textContent=target;
+ let ob=Math.floor((+(d.bowlerBalls||0))/6)+'.'+((+(d.bowlerBalls||0))%6);
+ bowl.innerHTML='<b>'+(d.bowler||'')+' '+(d.bowlerWkts||0)+'-'+(d.bowlerRuns||0)+' ('+ob+')</b><br><span class="small">Need '+need+' from '+rem+'  </br> Last 6 Balls : '+((d.last6||[]).join(' | '))+'</span>';
+}
+load();setInterval(load,1000);
+</script></body></html>

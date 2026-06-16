@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>CTL Admin Panel</title>
+<style>
+body{font-family:Arial;background:#0f172a;color:#fff;padding:15px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.card{background:#1e293b;padding:12px;border-radius:12px}
+label{display:block;margin-top:8px;font-size:13px}
+input{width:100%;padding:8px;box-sizing:border-box}
+.controls{margin-top:15px;display:flex;gap:8px;flex-wrap:wrap}
+button{padding:10px 14px;font-weight:bold}
+</style></head><body>
+<h2>CTL Admin</h2>
+<div class="grid">
+<div class="card">
+<h3>Teams</h3>
+<label>Batting Team Name</label><input id="team1">
+<label>Bowling Team Name</label><input id="team2">
+<label>Target Runs</label><input id="target" value="215">
+<label>Match Balls</label><input id="matchBalls" value="72">
+</div>
+<div class="card">
+<h3>Striker</h3>
+<label>Name</label><input id="striker">
+<label>Runs</label><input id="strikerRuns" value="0">
+<label>Balls</label><input id="strikerBalls" value="0">
+<h3>Non-Striker</h3>
+<label>Name</label><input id="nonstriker">
+<label>Runs</label><input id="nonstrikerRuns" value="0">
+<label>Balls</label><input id="nonstrikerBalls" value="0">
+</div>
+<div class="card">
+<h3>Bowler</h3>
+<label>Name</label><input id="bowler">
+<label>Wickets</label><input id="bowlerWkts" value="0">
+<label>Runs Conceded</label><input id="bowlerRuns" value="0">
+<label>Balls Bowled</label><input id="bowlerBalls" value="0">
+</div>
+<div class="card"><h3>Live Summary</h3><div id="summary"></div></div>
+</div>
+<div class="controls">
+<button onclick="score(0)">DOT</button><button onclick="score(1)">1</button>
+<button onclick="score(2)">2</button><button onclick="score(3)">3</button>
+<button onclick="score(4)">4</button><button onclick="score(6)">6</button>
+<button onclick="wicket()">WICKET</button>
+</div>
+<script>
+let s={score:0,wickets:0,balls:0,last6:[]};
+function save(){
+ let d={...s}; document.querySelectorAll('input').forEach(i=>d[i.id]=i.value);
+ localStorage.setItem('cricketData',JSON.stringify(d)); render();
+}
+function render(){
+ let rem=(+matchBalls.value||0)-s.balls;
+ let need=Math.max(0,(+target.value||0)-s.score);
+ let crr=s.balls?((s.score/s.balls)*6).toFixed(2):'0.00';
+ let rrr=rem>0?((need/rem)*6).toFixed(2):'0.00';
+ summary.innerHTML=`Score ${s.score}/${s.wickets}<br>Need ${need} from ${rem}<br>CRR ${crr} | RRR ${rrr}`;
+}
+function swap(){[striker.value,nonstriker.value]=[nonstriker.value,striker.value];
+[strikerRuns.value,nonstrikerRuns.value]=[nonstrikerRuns.value,strikerRuns.value];
+[strikerBalls.value,nonstrikerBalls.value]=[nonstrikerBalls.value,strikerBalls.value];}
+function score(r){s.score+=r;s.balls++;strikerRuns.value=+strikerRuns.value+r;strikerBalls.value=+strikerBalls.value+1;bowlerRuns.value=+bowlerRuns.value+r;if(r%2)swap();s.last6.push(r);s.last6=s.last6.slice(-6);save();}
+function wicket(){s.wickets++;s.balls++;bowlerWkts.value=+bowlerWkts.value+1;s.last6.push('W');s.last6=s.last6.slice(-6);save();}
+document.addEventListener('input',save);render();
+</script></body></html>
